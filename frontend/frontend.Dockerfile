@@ -18,9 +18,13 @@ RUN apt-get update && apt-get install -y \
 # Create a directory and copy the app
 RUN mkdir /app
 
-COPY . /app
+COPY requirements.txt /app
 
 RUN pip install -r /app/requirements.txt
 
-ENTRYPOINT [ "streamlit", "run", "/app/frontend.py" ]
+COPY . /app
+
+EXPOSE 8501
+
+ENTRYPOINT [ "streamlit", "run", "/app/frontend.py", "--server.port=8501", "--server.address=0.0.0.0" ]
 

@@ -4,5 +4,6 @@ llama-index-readers-file
 llama-index-embeddings-huggingface
 llama_index
 llama-index-vector-stores-postgres
+llama-index-embeddings-ollama
 nbconvert
 streamlit
