@@ -1,0 +1,3 @@
+ollama/ollama/*
+
+!ollama/ollama/.gitkeep
