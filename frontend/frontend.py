@@ -4,6 +4,13 @@ from llama_index.core.embeddings import resolve_embed_model
 from llama_index.llms.ollama import Ollama
 from llama_index.vector_stores.postgres import PGVectorStore
 from llama_index.embeddings.ollama import OllamaEmbedding
+import time
+
+# Streamed response emulator
+def response_streamer(response):
+    for word in response.split():
+        yield word + " "
+        time.sleep(0.05)
 
 
 documents = SimpleDirectoryReader("/app/data", recursive=True).load_data()
@@ -31,14 +38,19 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input():
 
 
-    query_engine = index.as_query_engine()
+    query_engine = index.as_query_engine(similarity_top_k=1)
 
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
-    print(prompt)
-    print(st.session_state.messages)
     response = query_engine.query(prompt)
-    print(response)
-    msg = response.choices[0].message.content
+    # print(response)
+    # print(response.print_response_stream())
+    msg = response.response
+    
+
+    with st.chat_message("assistant"):
+        _ = st.write_stream(response_streamer(msg))
+
     st.session_state.messages.append({"role": "assistant", "content": msg})
-    st.chat_message("assistant").write(msg)
+
+    
