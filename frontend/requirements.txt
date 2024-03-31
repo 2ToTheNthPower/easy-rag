@@ -7,3 +7,4 @@ llama-index-vector-stores-postgres
 llama-index-embeddings-ollama
 nbconvert
 streamlit
+ipython

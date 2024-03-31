@@ -14,7 +14,6 @@ def response_streamer(response):
 
 
 documents = SimpleDirectoryReader("/app/data", recursive=True).load_data()
-print(documents)
 
 # bge embedding model
 # Settings.embed_model = resolve_embed_model("local:BAAI/bge-small-en-v1.5")
@@ -24,7 +23,7 @@ Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
 Settings.llm = Ollama(model="llama2", request_timeout=30.0)
 
 index = VectorStoreIndex.from_documents(
-        documents,
+        documents, show_progress=True
     )
 
 st.title("💬 Chatbot")
@@ -43,8 +42,6 @@ if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
     response = query_engine.query(prompt)
-    # print(response)
-    # print(response.print_response_stream())
     msg = response.response
     
 
