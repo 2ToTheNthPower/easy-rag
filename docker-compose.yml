@@ -10,6 +10,8 @@ services:
       "host"
     volumes:
       - ~/code/easy-rag/data:/app/data
+    depends_on:
+      - db
   ollama:
     image: ollama/ollama
     ports:
@@ -20,3 +22,31 @@ services:
       "host"
     devices:
       - nvidia.com/gpu=all
+  db:
+    image: chromadb/chroma:latest
+    volumes:
+     - db_data:/chroma/chroma
+    command: "--workers 1 --host 0.0.0.0 --port 8000 --proxy-headers --log-config chromadb/log_config.yml --timeout-keep-alive 30"
+    environment:
+      - IS_PERSISTENT=TRUE
+    restart: unless-stopped # possible values are: "no", always", "on-failure", "unless-stopped"
+    network_mode:
+      "host"
+  parser:
+    image: easy-rag-parser
+    build:
+      dockerfile: parser.Dockerfile
+      context: ./parser
+    restart: unless-stopped
+    volumes:
+      - ~/code/easy-rag/data:/app/data
+    network_mode:
+      "host"
+    depends_on:
+      - db
+    
+
+volumes:
+  db_data:
+    driver: local
+     

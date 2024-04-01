@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     git \
     curl \
-    python3-psycopg2 \
     && apt-get clean
 
 # Create a directory and copy the app
@@ -25,7 +24,7 @@ RUN pip install -r /app/requirements.txt
 
 COPY . /app
 
-EXPOSE 8501
+EXPOSE 8001
 
-ENTRYPOINT [ "streamlit", "run", "/app/main.py", "--server.port=8501", "--server.address=0.0.0.0" ]
+ENTRYPOINT [ "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
 

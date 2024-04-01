@@ -1,7 +1,5 @@
 ollama/ollama/*
-
 !ollama/ollama/.gitkeep
 
 data/*
-
 !data/.gitkeep

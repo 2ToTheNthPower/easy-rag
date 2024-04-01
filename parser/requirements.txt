@@ -8,5 +8,5 @@ llama-index-embeddings-ollama
 nbconvert
 streamlit
 ipython
-psycopg2
 sqlalchemy
+uvicorn
