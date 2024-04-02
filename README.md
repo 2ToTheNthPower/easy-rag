@@ -1,29 +1,23 @@
-🦙 Easy-RAG: Your AI Document Assistant 📚
+EasyRAG: Easy Retrieval Augmented Generation 🚀
+===============================================
 
-Welcome to Easy-RAG, the ultimate AI-powered document assistant! 🎉
+Overview
+--------
 
-🔍 What is Easy-RAG? Easy-RAG is a powerful application that allows you to ask an AI questions about your documents. Whether you need help with text documents, code documentation, or actual code, Easy-RAG has got you covered! 🤓💡
+EasyRAG turns your local machine into a powerful AI assistant. By indexing your documents, it enhances language models like llama2, reducing hallucinations and providing accurate, context-aware responses. Designed for simplicity, it ensures your data stays private, operating entirely offline. 🛡️
 
-🚀 Getting Started To get started with Easy-RAG, follow these simple steps:
+Features
+--------
 
-Clone the repository to your local machine.
-Install the necessary dependencies by running the following command:
-Start the Easy-RAG server by running:
-Open your favorite web browser and navigate to http://localhost:3000.
-Ask your AI assistant any question you have about your documents! 🤔💬
-💡 Pro Tips Here are some pro tips to make the most out of Easy-RAG:
+*   **Local Data Indexing:** Keeps your data grounded and relevant.
+*   **100% Private:** Your data never leaves your machine. 🌐➡️🚫
+*   **Easy Setup:** Straightforward for users on Linux. 🐧
+*   **Fully Offline (After Setup):** Works without an internet connection. 📶🚫
 
-Use the curl commands below to pull down the required ollama models before running Easy-RAG for the first time:
-Customize the AI models and configurations in the config.json file to suit your specific needs.
-Explore the extensive documentation available in the docs folder for advanced usage and API reference.
-📞 Need Help? If you have any questions, issues, or suggestions, feel free to reach out to our friendly community of developers. We're here to help! 🙌
+Get Started
+-----------
 
-📝 Contributing We welcome contributions from the community! If you'd like to contribute to Easy-RAG, please follow our contribution guidelines outlined in the CONTRIBUTING.md file.
-
-📄 License Easy-RAG is released under the MIT License. See the LICENSE file for more information.
-
-🌟 Join the Easy-RAG Revolution! Start using Easy-RAG today and revolutionize the way you interact with your documents. Let the AI-powered ollama guide you to new levels of productivity and knowledge! 🚀🦙
-
-Happy coding! 😄👩‍💻👨‍💻
-
-
+1.  **Clone:** `git clone https://github.com/2ToTheNthPower/easy-rag.git`
+2.  **Navigate:** `cd easy-rag`
+3.  **Run:** `podman compose up`
+4.  **Visit:** `http://localhost:8501` to configure and start chatting!
