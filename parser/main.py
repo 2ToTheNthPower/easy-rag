@@ -5,17 +5,21 @@ import chromadb
 from llama_index.embeddings.ollama import OllamaEmbedding
 import time
 import fastapi
+from pydantic import BaseModel
 
+
+class EmbeddingModel(BaseModel):
+    name: str
 # Create API that accepts a request to index a directory
 
 app = fastapi.FastAPI()
 
 @app.post("/index")
 
-def index_directory():
+def index_directory(model: EmbeddingModel):
     documents = SimpleDirectoryReader("/app/data", recursive=True).load_data()
     remote_db = chromadb.HttpClient()
-    Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
+    Settings.embed_model = OllamaEmbedding(model_name=model.name)
 
     # ollama
     Settings.llm = Ollama(model="llama2", request_timeout=30.0)
