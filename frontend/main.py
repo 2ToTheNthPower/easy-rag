@@ -1,6 +1,7 @@
 import streamlit as st
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings, StorageContext
 from llama_index.llms.ollama import Ollama
+from llama_index.core.llms import ChatMessage, MessageRole
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 from llama_index.embeddings.ollama import OllamaEmbedding
@@ -9,15 +10,8 @@ import psycopg2
 import requests
 
 from llama_index.core import PromptTemplate
-
-template = (
-    "We have provided context information below. \n"
-    "---------------------\n"
-    "{context_str}"
-    "\n---------------------\n"
-    "Given this information, please answer the question: {query_str}\n"
-)
-qa_template = PromptTemplate(template)
+from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.core.chat_engine import CondenseQuestionChatEngine
 
 # Streamed response emulator
 def response_streamer(response):
@@ -57,7 +51,7 @@ with st.sidebar:
 Settings.embed_model = OllamaEmbedding(model_name=embedding_model)
 
 # ollama
-Settings.llm = Ollama(model="llama2", request_timeout=30.0)
+Settings.llm = Ollama(model=llm_name, request_timeout=30.0)
 
 # create the chroma client and add or retrieve our data
 remote_db = chromadb.HttpClient()
@@ -65,7 +59,43 @@ chroma_collection = remote_db.get_or_create_collection("quickstart")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 
 index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-query_engine = index.as_query_engine(text_qa_template=qa_template, top_k=10)
+
+# Here, a token limit is set
+memory = ChatMemoryBuffer.from_defaults(llm=Settings.llm)
+
+query_engine = index.as_query_engine(top_k=10, verbose=True)
+
+custom_prompt = PromptTemplate(
+    """\
+Given a conversation (between Human and Assistant) and a follow up message from Human, \
+rewrite the message to be a standalone question that captures all relevant context \
+from the conversation.
+
+<Chat History>
+{chat_history}
+
+<Follow Up Message>
+{question}
+
+<Standalone question>
+"""
+)
+
+# list of `ChatMessage` objects
+custom_chat_history = [
+    ChatMessage(
+        role=MessageRole.USER,
+        content="Hello assistant, today we are creating animations in Python using the manim library and documentation.",
+    ),
+    ChatMessage(role=MessageRole.ASSISTANT, content="Okay, sounds good."),
+]
+
+chat_engine = CondenseQuestionChatEngine.from_defaults(
+    query_engine=query_engine,
+    condense_question_prompt=custom_prompt,
+    chat_history=custom_chat_history,
+    verbose=True,
+)
 
 st.title("💬 Chatbot")
 
@@ -79,7 +109,7 @@ if prompt := st.chat_input():
 
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
-    response = query_engine.query(prompt)
+    response = chat_engine.chat(prompt)
     msg = response.response
     
 
