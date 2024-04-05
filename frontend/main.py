@@ -90,12 +90,7 @@ custom_chat_history = [
     ChatMessage(role=MessageRole.ASSISTANT, content="Okay, sounds good."),
 ]
 
-chat_engine = CondenseQuestionChatEngine.from_defaults(
-    query_engine=query_engine,
-    condense_question_prompt=custom_prompt,
-    chat_history=custom_chat_history,
-    verbose=True,
-)
+chat_engine = index.as_chat_engine(llm=Settings.llm, chat_mode="react", stream=True, verbose=True)
 
 st.title("💬 Chatbot")
 
@@ -109,12 +104,10 @@ if prompt := st.chat_input():
 
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
-    response = chat_engine.chat(prompt)
-    msg = response.response
     
 
     with st.chat_message("assistant"):
-        _ = st.write_stream(response_streamer(msg))
+        msg = st.write_stream(chat_engine.stream_chat(prompt).response_gen)
 
     st.session_state.messages.append({"role": "assistant", "content": msg})
 
