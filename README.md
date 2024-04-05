@@ -4,7 +4,7 @@ EasyRAG: Easy Retrieval Augmented Generation 🚀
 Overview
 --------
 
-EasyRAG turns your local machine into a powerful AI assistant. By indexing your documents, it enhances language models like llama2, reducing hallucinations and providing accurate, context-aware responses. Designed for simplicity, it ensures your data stays private, operating entirely offline. 🛡️
+EasyRAG turns your local machine into a powerful AI assistant. By indexing your documents, it enhances language models like llama2, reducing hallucinations and providing more accurate, context-aware responses. Designed for simplicity, it ensures your data stays private, operating entirely offline. 🛡️
 
 Features
 --------
