@@ -20,8 +20,8 @@ services:
       - ./ollama/ollama:/root/.ollama
     networks:
       - net
-    # devices:
-    #   - nvidia.com/gpu=all
+    devices:
+      - nvidia.com/gpu=all
   db:
     image: chromadb/chroma:latest
     volumes:
