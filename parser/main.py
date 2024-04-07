@@ -22,7 +22,7 @@ def index_directory(model: EmbeddingModel):
     Settings.embed_model = OllamaEmbedding(model_name=model.name)
 
     # ollama
-    Settings.llm = Ollama(model="llama2", request_timeout=30.0)
+    Settings.llm = Ollama(model="llama2", request_timeout=90.0)
 
     remote_db.delete_collection("quickstart")
     chroma_collection = remote_db.get_or_create_collection("quickstart")

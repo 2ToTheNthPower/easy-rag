@@ -23,14 +23,14 @@ def response_streamer(response):
 with st.sidebar:
 
     st.title("Index all data")
-    local_models = [model["name"] for model in requests.get('http://localhost:11434/api/tags').json()["models"]]
+    local_models = [model["name"] for model in requests.get('http://ollama:11434/api/tags').json()["models"]]
 
     embedding_model = st.selectbox("Select embedding model", local_models)
 
     if st.button("Start"):
         with st.spinner("Indexing data..."):
-            # Post request to localhost:8001/index
-            response = requests.post("http://0.0.0.0:8001/index", json={"name": embedding_model})
+            # Post request to parser:8001/index
+            response = requests.post("http://parser:8001/index", json={"name": embedding_model})
     
     st.markdown("""---""")
     st.title("Choose chat model")
@@ -44,17 +44,17 @@ with st.sidebar:
 
     if st.button("Pull model"):
         with st.spinner("Pulling model..."):
-            response = requests.post("http://localhost:11434/api/pull", json={"name": model_to_pull})
+            response = requests.post("http://ollama:11434/api/pull", json={"name": model_to_pull})
 
 # bge embedding model
 # Settings.embed_model = resolve_embed_model("local:BAAI/bge-small-en-v1.5")
 Settings.embed_model = OllamaEmbedding(model_name=embedding_model)
 
 # ollama
-Settings.llm = Ollama(model=llm_name, request_timeout=30.0)
+Settings.llm = Ollama(model=llm_name, request_timeout=90.0, base_url="http://ollama:11434")
 
 # create the chroma client and add or retrieve our data
-remote_db = chromadb.HttpClient()
+remote_db = chromadb.HttpClient(host='db', port=8000)
 chroma_collection = remote_db.get_or_create_collection("quickstart")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 

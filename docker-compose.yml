@@ -6,32 +6,34 @@ services:
       context: ./frontend
     ports:
       - 8501:8501
-    network_mode:
-      "host"
     volumes:
       - ~/code/easy-rag/data:/app/data
     depends_on:
       - db
+    networks:
+      - net
   ollama:
     image: ollama/ollama
     ports:
       - 11434:11434
     volumes: 
       - ./ollama/ollama:/root/.ollama
-    network_mode:
-      "host"
-    devices:
-      - nvidia.com/gpu=all
+    networks:
+      - net
+    # devices:
+    #   - nvidia.com/gpu=all
   db:
     image: chromadb/chroma:latest
     volumes:
      - db_data:/chroma/chroma
-    command: "--workers 1 --host 0.0.0.0 --port 8000 --proxy-headers --log-config chromadb/log_config.yml --timeout-keep-alive 30"
     environment:
       - IS_PERSISTENT=TRUE
-    restart: unless-stopped # possible values are: "no", always", "on-failure", "unless-stopped"
-    network_mode:
-      "host"
+      - PERSIST_DIRECTORY=/chroma/chroma # this is the default path, change it as needed
+      - ANONYMIZED_TELEMETRY=FALSE
+    ports:
+      - 8000:8000
+    networks:
+      - net
   parser:
     image: easy-rag-parser
     build:
@@ -40,11 +42,16 @@ services:
     restart: unless-stopped
     volumes:
       - ~/code/easy-rag/data:/app/data
-    network_mode:
-      "host"
+    ports:
+      - 8001:8001
     depends_on:
       - db
-    
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge
 
 volumes:
   db_data:
