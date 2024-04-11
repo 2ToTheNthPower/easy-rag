@@ -18,11 +18,11 @@ app = fastapi.FastAPI()
 
 def index_directory(model: EmbeddingModel):
     documents = SimpleDirectoryReader("/app/data", recursive=True).load_data()
-    remote_db = chromadb.HttpClient()
-    Settings.embed_model = OllamaEmbedding(model_name=model.name)
+    remote_db = chromadb.HttpClient(host='db', port=8000)
+    Settings.embed_model = OllamaEmbedding(model_name=model.name, base_url="http://ollama:11434")
 
     # ollama
-    Settings.llm = Ollama(model="llama2", request_timeout=90.0)
+    Settings.llm = Ollama(model="llama2", request_timeout=90.0, base_url="http://ollama:11434")
 
     remote_db.delete_collection("quickstart")
     chroma_collection = remote_db.get_or_create_collection("quickstart")

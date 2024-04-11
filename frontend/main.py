@@ -5,13 +5,14 @@ from llama_index.core.llms import ChatMessage, MessageRole
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 from llama_index.embeddings.ollama import OllamaEmbedding
+from llama_index.core.retrievers import VectorIndexRetriever
 import time
 import psycopg2
 import requests
 
 from llama_index.core import PromptTemplate
 from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core.chat_engine import CondenseQuestionChatEngine
+from llama_index.core.chat_engine import CondenseQuestionChatEngine, CondensePlusContextChatEngine
 
 # Streamed response emulator
 def response_streamer(response):
@@ -48,7 +49,7 @@ with st.sidebar:
 
 # bge embedding model
 # Settings.embed_model = resolve_embed_model("local:BAAI/bge-small-en-v1.5")
-Settings.embed_model = OllamaEmbedding(model_name=embedding_model)
+Settings.embed_model = OllamaEmbedding(model_name=embedding_model, base_url="http://ollama:11434")
 
 # ollama
 Settings.llm = Ollama(model=llm_name, request_timeout=90.0, base_url="http://ollama:11434")
@@ -63,7 +64,11 @@ index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 # Here, a token limit is set
 memory = ChatMemoryBuffer.from_defaults(llm=Settings.llm)
 
-query_engine = index.as_query_engine(top_k=10, verbose=True)
+# configure retriever
+retriever = VectorIndexRetriever(
+    index=index,
+    similarity_top_k=5,
+)
 
 custom_prompt = PromptTemplate(
     """\
@@ -85,12 +90,20 @@ from the conversation.
 custom_chat_history = [
     ChatMessage(
         role=MessageRole.USER,
-        content="Hello assistant, today we are creating animations in Python using the manim library and documentation.",
+        content="Hello assistant, today we are creating animations in Python using the manim library.  Pay close attention to the context provided when answering each question.",
     ),
     ChatMessage(role=MessageRole.ASSISTANT, content="Okay, sounds good."),
 ]
 
-chat_engine = index.as_chat_engine(llm=Settings.llm, chat_mode="react", stream=True, verbose=True)
+chat_engine = CondensePlusContextChatEngine.from_defaults(
+    llm=Settings.llm,
+    retriever=retriever,
+    memory=memory,
+    prompt_template=custom_prompt,
+    chat_history=custom_chat_history,
+    response_streamer=response_streamer,
+
+)
 
 st.title("💬 Chatbot")
 
@@ -105,9 +118,14 @@ if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
     
-
+    response = chat_engine.stream_chat(prompt)
     with st.chat_message("assistant"):
-        msg = st.write_stream(chat_engine.stream_chat(prompt).response_gen)
+        msg = st.write_stream(response.response_gen)
+
+        with st.expander("See context"):
+
+            sources = [s.node.get_text() for s in response.source_nodes]
+            st.write(sources)
 
     st.session_state.messages.append({"role": "assistant", "content": msg})
 
