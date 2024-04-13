@@ -20,6 +20,7 @@ services:
       - ./ollama/ollama:/root/.ollama
     networks:
       - net
+    # Remove the devices section if you are not using a GPU
     devices:
       - nvidia.com/gpu=all
   db:
