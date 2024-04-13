@@ -25,8 +25,8 @@ with st.sidebar:
     local = st.toggle('Run locally :sunglasses:', True)
 
     with st.expander("See options"):
-        document_count = st.slider(label="How many documents in the context?", min_value=0, max_value=20, value=3, step=1)
-        
+        document_count = st.slider(label="How many documents per chat message?", min_value=0, max_value=20, value=3, step=1)
+
         if document_count > 5:
             st.warning("Adding too many documents to the context may cause the LLM to forget parts of the chat history, depending on the model.")
         if document_count == 0:
